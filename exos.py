@@ -4,6 +4,14 @@
 # Eden Darnige, Juan Manuel Garciam Théo Gauvrit 
 ######
 
+#Imports 
+from cobra import *
+import cobra.test
+from cobra.flux_analysis import *
+
+import matplotlib.pyplot as plt
+
+
 #Une seconde analyse de flux (diapo 27)
 
 #Analyse de la distribution des flux (diapo 28)
