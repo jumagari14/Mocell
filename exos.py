@@ -1,7 +1,7 @@
 #######
 # Modé́lisation d́e Réseaux Métaboliques
 # MOCELL 2019
-# Eden Darnige, Juan Manuel Garciam Théo Gauvrit 
+# Eden Darnige, Juan Manuel Garcia, Théo Gauvrit 
 ######
 
 #Imports 
