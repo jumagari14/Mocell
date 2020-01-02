@@ -247,7 +247,7 @@ print(prod_env)
 print(prod_env2)
 
 prod_env.plot(
-    kind='line', x='EX_o2_e', y='carbon_yield_maximum');
+    kind='line', x='EX_o2_e', y='flux_maximum');
 
 plt.show()
 
