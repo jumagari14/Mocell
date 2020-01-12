@@ -258,3 +258,74 @@ plt.show()
 ##################################
 #Un peu de bioengineering (diapo 38)
 ##################################
+modelEcoli=cobra.test.create_test_model("ecoli")
+
+amiadi=Metabolite(id="amndp",formula="C6H11NO4",name="L_2_aminoadipate",compartment="c")
+peni_int=Metabolite(id="am_carb_cys_val",name="N-[(5S)-5-amino-5-carboxypentanoyl]-L-cysteinyl-D-valine",formula="C14H24N3O6S",compartment="c")
+isopen_N=Metabolite(id="iso_N",name="Isopenicilin_N",formula="C14H20N3O6S",compartment="c")
+
+val=modelEcoli.metabolites.get_by_id("val__L_c")
+cys=modelEcoli.metabolites.get_by_id("cys__L_c")
+
+adp_entry=Reaction(
+    id="adp_entry",
+    name="Aminoadipate entry",
+    upper_bound=1000,
+    lower_bound=0
+)
+
+adp_cys_val=Reaction(
+    id="adp_cys_val_synth",
+    name="δ-(L-α-aminoadipyl)-L-cysteinyl-D-valine synthetase",
+    lower_bound=0,
+    upper_bound=1000
+)
+isopen_synthase=Reaction(
+    id="isopen_synth",
+    name="Isopenicilin-N synthase",
+    upper_bound=1000,
+    lower_bound=0
+)
+isopen_prod=Reaction(
+    id="iso_prod",
+    name="Isopenicilin production",
+    upper_bound=1000,
+    lower_bound=0
+)
+adp_entry.add_metabolites({
+    amiadi: 1.0
+})
+
+adp_cys_val.add_metabolites({
+    amiadi: -1.0,
+    val: -1.0,
+    cys: -1.0,
+    modelEcoli.metabolites.h2o_c: -1.0,
+    modelEcoli.metabolites.atp_c: -3.0,
+    modelEcoli.metabolites.ppi_c: 3.0,
+    modelEcoli.metabolites.amp_c: 3.0,
+    modelEcoli.metabolites.h_c: 3.0,
+    peni_int: 1.0
+
+})
+isopen_synthase.add_metabolites({
+   peni_int: -1.0,
+   modelEcoli.metabolites.o2_c: -1.0,
+   modelEcoli.metabolites.h2o_c: 2.0,
+   isopen_N: 1.0 
+})
+isopen_prod.add_metabolites({
+    isopen_N: 1.0
+})
+
+EColi_trans=modelEcoli
+EColi_trans.add_reactions([adp_entry,isopen_prod, adp_cys_val,isopen_synthase])
+EColi_trans.objective="iso_prod"
+
+medium=EColi_trans.medium
+medium["EX_glc__D_e"]=1000.0
+EColi_trans.medium=medium
+
+sol_trans=EColi_trans.optimize()
+
+print(sol_trans.objective_value)
