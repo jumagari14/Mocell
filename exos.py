@@ -254,7 +254,98 @@ plt.show()
 ##################################
 #Des modèles plus gros (diapo 37)
 ##################################
+modelEcoli = cobra.test.create_test_model("ecoli")
+modelSalmonella = cobra.test.create_test_model("salmonella")
 
+
+print("Le modèle a {} reactions".format(len(modelEcoli.reactions)))
+print("Le modèle a {} reactions".format(len(modelSalmonella.reactions)))
+
+print("Le modèle a {} génes".format(len(modelEcoli.genes)))
+print("Le modèle a {} génes".format(len(modelSalmonella.genes)))
+
+print("Le modèle a {} metabolites".format(len(modelEcoli.metabolites)))
+print("Le modèle a {} metabolites".format(len(modelSalmonella.metabolites)))
+
+# print (type(modelEcoli.reactions))
+
+count=0
+for i in modelEcoli.reactions: 
+    if i in modelSalmonella.reactions: 
+        count+=1
+print ("There are {} reactions in common".format(count))
+
+count=0
+for i in modelEcoli.metabolites: 
+    if i in modelSalmonella.metabolites: 
+        count+=1
+print ("There are {} metabolites in common".format(count))
+
+
+def findBiomassMetabolites(model): 
+    submodel=model.reactions.query("biomass",attribute='id')
+    if (submodel==[]):
+        submodel=model.reactions.query("BIOMASS",attribute='id')
+    for i in submodel: 
+        print(i)
+    met=[]  
+    for i in submodel: 
+        for j in i.metabolites: 
+            if j.name not in met: 
+                met.append(j.name)
+    return met 
+
+# print("EColi: \n")
+reac1=findBiomassMetabolites(modelEcoli)
+# print(reac1)
+print("Salmonella: \n")
+reac2=findBiomassMetabolites(modelSalmonella)
+# print(reac2)
+count=0
+for j in reac1: 
+    if j in reac2: 
+        count+=1
+print("\nAu total, il y a {} metabolites en commun qui font partie de la biomasse".format(count)) 
+
+## FBA Analysis 
+# double_del_eColi=double_gene_deletion(modelEcoli)
+# print(list(del_eColi.index.values))
+# print(del_eColi.summary())
+# print(del_eColi.index.values[del_eColi.index(max(del_eColi.growth))])
+sol1_eco=modelEcoli.optimize()
+
+sol2_salmo=modelSalmonella.optimize()
+print(sol1_eco.objective_value)
+print(sol2_salmo.objective_value)
+
+def setReacto0(model,react_name): 
+    medium=model.medium
+    medium[react_name]=0.0
+    model.medium=medium
+    return model
+
+## Anaerobic condition 
+ana_Ecoli=setReacto0(modelEcoli,"EX_o2_e")
+ana_Salmo=setReacto0(modelSalmonella,"EX_o2_e")
+
+sol1_ana=ana_Ecoli.optimize()
+sol2_ana=ana_Salmo.optimize()
+
+print(sol1_ana.objective_value)
+print(sol2_ana.objective_value)
+
+## Carbon input limited
+noC_Ecoli=setReacto0(modelEcoli,"EX_co2_e")
+noC_Ecoli=setReacto0(noC_Ecoli,"EX_glc__D_e")
+
+noC_Salmo=setReacto0(modelSalmonella,"EX_co2_e")
+noC_Salmo=setReacto0(noC_Salmo,"EX_glc__D_e")
+
+sol1_noC=noC_Ecoli.optimize()
+sol2_noC=noC_Salmo.optimize()
+
+print(sol1_noC.objective_value)
+print(sol2_noC.objective_value) 
 ##################################
 #Un peu de bioengineering (diapo 38)
 ##################################
