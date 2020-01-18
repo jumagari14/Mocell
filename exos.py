@@ -411,7 +411,6 @@ isopen_prod.add_metabolites({
 
 EColi_trans=modelEcoli
 EColi_trans.add_reactions([adp_entry,isopen_prod, adp_cys_val,isopen_synthase])
-EColi_trans.objective="iso_prod"
 
 medium=EColi_trans.medium
 medium["EX_glc__D_e"]=1000.0
@@ -420,3 +419,4 @@ EColi_trans.medium=medium
 sol_trans=EColi_trans.optimize()
 
 print(sol_trans.objective_value)
+print(" isopeniciline production: " + str(sol_trans.fluxes["iso_prod"]))
